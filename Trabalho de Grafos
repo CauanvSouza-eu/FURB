@@ -1,0 +1,155 @@
+import java.util.*;
+
+public class Grafo {
+
+    //Cauan Vieira de Souza e Rodrigo Amaral
+
+    public static String tipoDoGrafo(int[][] matriz) {
+        int n = matriz.length;
+        boolean dirigido = false;
+        boolean multigrafo = false;
+        boolean completo = true;
+        boolean simples = true;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (matriz[i][j] != matriz[j][i]) {
+                    dirigido = true;
+                }
+                if (i == j && matriz[i][j] > 0) {
+                    simples = false;
+                }
+                if (matriz[i][j] > 1) {
+                    multigrafo = true;
+                }
+                if (i != j && matriz[i][j] == 0) {
+                    completo = false;
+                }
+            }
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(dirigido ? "Dirigido" : "Não-dirigido");
+        sb.append(", ");
+        sb.append(simples ? "Simples" : "Não-simples");
+        if (multigrafo) sb.append(", Multigrafo");
+        if (completo) sb.append(", Completo");
+
+        return sb.toString();
+    }
+
+    public static String arestasDoGrafo(int[][] matriz) {
+        int n = matriz.length;
+        List<String> arestas = new ArrayList<>();
+        int qtd = 0;
+
+        boolean dirigido = !tipoDoGrafo(matriz).startsWith("Não-dirigido");
+
+        for (int i = 0; i < n; i++) {
+            for (int j = (dirigido ? 0 : i); j < n; j++) {
+                if (matriz[i][j] > 0) {
+                    for (int k = 0; k < matriz[i][j]; k++) {
+                        arestas.add("(" + i + "," + j + ")");
+                        qtd++;
+                    }
+                }
+            }
+        }
+
+        return "Quantidade de arestas: " + qtd + " -> " + arestas;
+    }
+
+    public static String grausDoVertice(int[][] matriz) {
+        int n = matriz.length;
+        int[] graus = new int[n];
+        boolean dirigido = !tipoDoGrafo(matriz).startsWith("Não-dirigido");
+
+        if (dirigido) {
+            int[] in = new int[n];
+            int[] out = new int[n];
+
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    out[i] += matriz[i][j];
+                    in[j] += matriz[i][j];
+                }
+            }
+
+            StringBuilder sb = new StringBuilder("Graus (Dirigido):\n");
+            for (int i = 0; i < n; i++) {
+                sb.append("Vértice ").append(i)
+                  .append(" -> Grau de entrada: ").append(in[i])
+                  .append(", Grau de saída: ").append(out[i]).append("\n");
+            }
+            return sb.toString();
+        } else {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    graus[i] += matriz[i][j];
+                }
+            }
+
+            StringBuilder sb = new StringBuilder("Graus (Não-dirigido):\n");
+            for (int i = 0; i < n; i++) {
+                sb.append("Vértice ").append(i).append(" -> ").append(graus[i]).append("\n");
+            }
+            return sb.toString();
+        }
+    }
+
+    public static String buscaEmProfundidade(int[][] matriz) {
+        int n = matriz.length;
+        boolean[] visitado = new boolean[n];
+        List<Integer> ordem = new ArrayList<>();
+
+        for (int i = 0; i < n; i++) {
+            if (!visitado[i]) {
+                dfs(i, matriz, visitado, ordem);
+            }
+        }
+
+        return "Ordem da DFS: " + ordem;
+    }
+
+    private static void dfs(int v, int[][] matriz, boolean[] visitado, List<Integer> ordem) {
+        visitado[v] = true;
+        ordem.add(v);
+
+        for (int j = 0; j < matriz.length; j++) {
+            if (matriz[v][j] > 0 && !visitado[j]) {
+                dfs(j, matriz, visitado, ordem);
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+
+    int[][] matriz1 = {
+        {0, 1, 0, 0},
+        {1, 0, 1, 1},
+        {0, 1, 0, 0},
+        {0, 1, 0, 0}
+    };
+
+    System.out.println("===== TESTE 1 =====");
+    System.out.println("Tipo do Grafo: " + tipoDoGrafo(matriz1));
+    System.out.println(arestasDoGrafo(matriz1));
+    System.out.println(grausDoVertice(matriz1));
+    System.out.println(buscaEmProfundidade(matriz1));
+
+    int[][] matriz2 = {
+        {0, 2, 0, 0, 1, 0},
+        {0, 0, 1, 0, 0, 0},
+        {1, 0, 0, 1, 0, 0},
+        {0, 0, 0, 1, 0, 1},
+        {0, 0, 0, 0, 0, 1},
+        {0, 0, 0, 0, 0, 0}
+    };
+
+    System.out.println("\n===== TESTE 2 =====");
+    System.out.println("Tipo do Grafo: " + tipoDoGrafo(matriz2));
+    System.out.println(arestasDoGrafo(matriz2));
+    System.out.println(grausDoVertice(matriz2));
+    System.out.println(buscaEmProfundidade(matriz2));
+}
+}
